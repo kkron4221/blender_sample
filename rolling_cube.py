@@ -4,6 +4,10 @@ import math
 # give Python access to Blender's functionality
 import bpy
 
+def delete_all():
+    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.object.delete(True)
+
 def create_cube():
     """Add a cube into the scene"""
     bpy.ops.mesh.primitive_cube_add()
@@ -54,21 +58,20 @@ def animate_revolutions(number_of_revolutions, empty_locations, rotation_angle, 
     # create a variable to track the current_frame
     current_frame = 1
     
-    for _ in range(number_of_revolutions):
-        # loop over all the empty locations
-        for loc in empty_locations:
-            empty = create_empty(loc)
+    # loop over all the empty locations
+    for loc in empty_locations:
+        empty = create_empty(loc)
 
-            # parent the empty to the previous empty
-            if previous_empty:
-                parent(empty, previous_empty, keep_transform=True)
-            else:
-                # save the root empty
-                root_empty = empty
+        # parent the empty to the previous empty
+        if previous_empty:
+            parent(empty, previous_empty, keep_transform=True)
+        else:
+            # save the root empty
+            root_empty = empty
 
-            previous_empty = empty
+        previous_empty = empty
 
-            current_frame = animate_rotation(empty, current_frame, rotation_angle, rotation_animation_length)
+        current_frame = animate_rotation(empty, current_frame, rotation_angle, rotation_animation_length)
     
     # update the animation length
     bpy.context.scene.frame_end = current_frame
@@ -79,10 +82,11 @@ def animate_revolutions(number_of_revolutions, empty_locations, rotation_angle, 
 def roll_cube(cube, number_of_revolutions, starting_position):
     """Create an animation of a rolling cube"""
     # create a list of locations for the empties
+#    empty_locations = [(0, 0, 0), (0, 0, cube.dimensions.z), (0, -cube.dimensions.y, cube.dimensions.z), (0, -cube.dimensions.y, 0)]
     empty_locations = [(0, 0, 0), (0, 0, cube.dimensions.z), (0, -cube.dimensions.y, cube.dimensions.z), (0, -cube.dimensions.y, 0)]
 
     # create variables for the rotation animation
-    rotation_animation_length = 15
+    rotation_animation_length = 8
     rotation_angle = -90
 
     root_empty, previous_empty = animate_revolutions(number_of_revolutions, empty_locations, rotation_angle, rotation_animation_length)
@@ -100,6 +104,8 @@ def roll_cube(cube, number_of_revolutions, starting_position):
 
 
 def main():
+    delete_all()
+    
     cube = create_cube()
 
     # create a variable to set the number of times the cube will revolve
@@ -107,8 +113,12 @@ def main():
     
     # create a variable to set the starting location of the roll animation
     starting_position = (5, 5, 5)
+    
+    second_position = (5, 10, 5)
 
     roll_cube(cube, number_of_revolutions, starting_position)
+
+    roll_cube(cube, number_of_revolutions, second_position)
 
 
 main()
